@@ -42,6 +42,7 @@
 // N*(16/FS_LTE)/(1/(fs_prog*k_factor))
 // N*16/FS_LTE*fs_prog*k_factor
 
+#include "dsp.h"
 #include <itpp/itbase.h>
 #include <itpp/signal/transforms.h>
 #include <itpp/stat/misc_stat.h>
