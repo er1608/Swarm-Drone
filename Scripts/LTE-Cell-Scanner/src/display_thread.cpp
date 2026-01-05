@@ -137,11 +137,7 @@ void display_cell(
   printw("]");
   attroff(attrs);
   attron(COLOR_PAIR(BLUE));
-  if (fifo_status) {
-    printw("[buffer %5i/%5i]",
-       (int)tracked_cell.fifo.size(),
-       (int)tracked_cell.fifo.max_size());
-  }
+
   printw("\n");
   attroff(COLOR_PAIR(BLUE));
 
