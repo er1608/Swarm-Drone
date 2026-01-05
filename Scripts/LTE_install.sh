@@ -69,41 +69,6 @@ is_source_downloaded() {
     [ -d "LTE-Cell-Scanner" ] && return 0 || return 1
 }
 
-download_source() {
-    local archive="LTE-Cell-Scanner_rpi.tar.gz"
-    local url="http://rfhead.net/sats/LTE-Cell-Scanner_rpi.tar.gz"
-    
-    if is_source_downloaded; then
-        log_info "Source code already exists in LTE-Cell-Scanner/"
-        return 0
-    fi
-    
-    log_info "Downloading LTE-Cell-Scanner source..."
-    
-    if [ -f "$archive" ]; then
-        log_info "Archive $archive already exists"
-    else
-        wget "$url" || {
-            log_error "Failed to download $url"
-            return 1
-        }
-    fi
-    
-    log_info "Extracting $archive..."
-    tar -xzf "$archive" || {
-        log_error "Failed to extract $archive"
-        return 1
-    }
-   
-    if is_source_downloaded; then
-        log_info "Source code extracted successfully"
-        return 0
-    else
-        log_error "Extraction failed or directory not found"
-        return 1
-    fi
-}
-
 build_scanner() {
     local build_dir="LTE-Cell-Scanner/build"
     
@@ -217,8 +182,6 @@ main() {
     )
     
     install_packages "${required_packages[@]}"
-    
-    download_source
     
     build_scanner
     
