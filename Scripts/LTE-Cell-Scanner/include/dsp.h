@@ -117,10 +117,68 @@ inline double udb20(const double v) {
 }
 
 // Complex white Gaussian noise
-inline itpp::cvec blnoise(const uint32 &n_samp) {
+inline itpp::cvec blnoise(
+  const uint32 & n_samp
+) {
   return itpp::randn_c(n_samp);
 }
 
-// interp1, chi2cdf, interpft giữ nguyên
+template <class T>
+itpp::Vec <T> interp1(
+  const itpp::vec & X,
+  const itpp::Vec <T> & Y,
+  const itpp::vec & x
+) {
+  ASSERT(itpp_ext::and_reduce(itpp_ext::diff(X)>0));
+  ASSERT(length(X)==length(Y));
+
+  itpp::Vec <T> retval;
+  retval.set_size(length(x));
+
+  // No interpolation possible if only one X,Y pair is supplied.
+  if (length(X)==1) {
+    retval=Y(0);
+    return retval;
+  }
+
+  for (int32 t=0;t<length(x);t++) {
+    uint32 try_l=0;
+    uint32 try_r=length(X)-1;
+    while (try_r-try_l>1) {
+      uint32 try_mid=itpp::round_i((try_r+try_l)/2.0);
+      //std::cout << try_l << " " << try_mid << " " << try_r << std::endl;
+      if (x(t)>=X(try_mid)) {
+        try_l=try_mid;
+      } else {
+        try_r=try_mid;
+      }
+    }
+    retval(t)=Y(try_l)+(x(t)-X(try_l))*(Y(try_r)-Y(try_l))/(X(try_r)-X(try_l));
+  }
+
+  return retval;
+}
+
+// Returns the value x such that chi2cdf(x,k) is p.
+inline double chi2cdf_inv(
+  const double & p,
+  const double & k
+) {
+  return 2*boost::math::gamma_p_inv(k/2,p);
+}
+
+// Returns the chi squared cdf evaluated at x for k degrees of freedom.
+inline double chi2cdf(
+  const double & x,
+  const double & k
+) {
+  return boost::math::gamma_p(k/2,x/2);
+}
+
+// Interpolate, using fft's, time domain signal x so that is of length n_y.
+itpp::cvec interpft(
+  const itpp::cvec & x,
+  const uint32 & n_y_pre
+);
 
 #endif
