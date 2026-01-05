@@ -136,6 +136,9 @@ build_scanner() {
     log_info "Running CMake..."
 	cmake .. \
   -DINSTALL_UDEV_RULES=ON \
+  -DCMAKE_CXX_STANDARD=14 \
+  -DCMAKE_CXX_STANDARD_REQUIRED=ON \
+  -DCMAKE_CXX_EXTENSIONS=OFF \
   -DITPP_INCLUDE_DIR=/usr/include \
   -DITPP_LIBRARY=/usr/lib/aarch64-linux-gnu/libitpp.so \
   -DFFTW_INCLUDE_DIR=/usr/include \
