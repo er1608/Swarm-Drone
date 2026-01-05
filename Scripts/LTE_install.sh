@@ -11,7 +11,7 @@ RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 
-log() {
+log_info() {
 	echo -e "${GREEN}[INFO] $1"
 }
 
@@ -132,9 +132,19 @@ build_scanner() {
         log_error "Cannot enter build directory"
         return 1
     }
-    
+	
     log_info "Running CMake..."
-    cmake ../ -DINSTALL_UDEV_RULES=ON || {
+	cmake .. \
+  -DINSTALL_UDEV_RULES=ON \
+  -DCMAKE_CXX_STANDARD=14 \
+  -DCMAKE_CXX_STANDARD_REQUIRED=ON \
+  -DCMAKE_CXX_EXTENSIONS=OFF \
+  -DITPP_INCLUDE_DIR=/usr/include \
+  -DITPP_LIBRARY=/usr/lib/aarch64-linux-gnu/libitpp.so \
+  -DFFTW_INCLUDE_DIR=/usr/include \
+  -DFFTW_LIBRARY=/usr/lib/aarch64-linux-gnu/libfftw3.so \
+  -DRTLSDR_INCLUDE_DIR=/usr/include \
+  -DRTLSDR_LIBRARY=/usr/lib/aarch64-linux-gnu/librtlsdr.so || {
         log_error "CMake configuration failed"
         return 1
     }
