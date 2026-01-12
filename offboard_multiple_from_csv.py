@@ -135,10 +135,15 @@ async def run_drone(drone_id, trajectory_offset, udp_port, time_offset, altitude
                 print(f"Drone id: {drone_id}: Mode number: {mode_code}, Description: {mode_descriptions[mode_code]}")
                 last_mode = mode_code
                 
-        await drone.offboard.set_position_velocity_acceleration_ned(
+        # await drone.offboard.set_position_velocity_acceleration_ned(
+        #     PositionNedYaw(*position, yaw),
+        #     VelocityNedYaw(*velocity, yaw),
+        #     AccelerationNed(*acceleration)
+        # )
+
+        await drone.offboard.set_position_velocity_ned(
             PositionNedYaw(*position, yaw),
-            VelocityNedYaw(*velocity, yaw),
-            AccelerationNed(*acceleration)
+            VelocityNedYaw(*velocity, yaw)
         )
 
         await asyncio.sleep(0.1)  # Time resolution of 0.1 seconds
