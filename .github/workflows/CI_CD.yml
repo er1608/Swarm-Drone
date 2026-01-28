@@ -16,7 +16,7 @@ jobs:
 
     - name: Install dependencies
       run: |
-        pip install pipreqs
+        pip install mavsdk
         pip install flake8 pytest
 
     - name: Lint with flake8
