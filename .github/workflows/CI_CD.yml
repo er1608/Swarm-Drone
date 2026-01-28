@@ -61,18 +61,13 @@ jobs:
           ccache -s
           ccache -z
 
-      - name: Build PX4
-        env:
-          PX4_CMAKE_BUILD_TYPE: ${{matrix.config.build_type}}
-        run: make px4_sitl_default
-
       - name: Cache Post-Run [px4_sitl_default]
         run: ccache -s
 
       - name: Build SITL Gazebo
         env:
           PX4_CMAKE_BUILD_TYPE: ${{matrix.config.build_type}}
-        run: make px4_sitl_default sitl_gazebo-classic
+        run: make px4_sitl gz_x500
 
       - name: Cache Post-Run [sitl_gazebo-classic]
         run: ccache -s
