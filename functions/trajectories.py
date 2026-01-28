@@ -1,37 +1,24 @@
 import time
 import math
 
-
 def map_shape_to_code(shape_name):
-    """
-    Function to map shape names to shape codes and their respective function calls.
 
-    Args:
-    shape_name: A string that represents the name of the shape.
-
-    Returns:
-    A tuple of shape_code, shape_fcn and shape_args.
-    """
-
-    # Define a dictionary to map shape names to their enumeration or number codes and respective function calls
     shape_dict = {
         "eight_shape": (0, eight_shape_trajectory, ()),
         "circle": (1, circle_trajectory, ()),
         "square": (2, square_trajectory, ()),
-        "helix": (3, helix_trajectory, (20, 3)),  # Helix trajectory requires additional arguments for end altitude and number of turns
+        "helix": (3, helix_trajectory, (20, 3)),
         "heart_shape": (4, heart_shape_trajectory, ()),
         "infinity_shape": (5, infinity_shape_trajectory, ()),
-        "spiral_square": (6, spiral_square_trajectory, (3,)),  # Spiral square trajectory requires additional argument for number of turns
-        "star_shape": (7, star_shape_trajectory, (5,)),  # Star shape trajectory requires additional argument for number of points
-        "zigzag": (8, zigzag_trajectory, (3,)),  # Zigzag trajectory requires additional argument for number of turns
-        "sine_wave": (9, sine_wave_trajectory, (3,))  # Sine wave trajectory requires additional argument for number of turns
+        "spiral_square": (6, spiral_square_trajectory, (3,)),
+        "star_shape": (7, star_shape_trajectory, (5,)),
+        "zigzag": (8, zigzag_trajectory, (3,)),
+        "sine_wave": (9, sine_wave_trajectory, (3,))
     }
     
-    # Check if the shape_name exists in the dictionary
     if shape_name in shape_dict:
         shape_code, shape_fcn, shape_args = shape_dict[shape_name]
     else:
-        # Raise an error for invalid shape names
         raise ValueError(f"Invalid shape name: {shape_name}")
     
     return shape_code, shape_fcn, shape_args
@@ -54,9 +41,6 @@ def sine_wave_trajectory(step, maneuver_time, diameter, direction, initial_alt, 
     az = 0
 
     return x, y, z, vx, vy, vz, ax, ay, az
-
-
-
 
 def infinity_shape_trajectory(step, maneuver_time, diameter, direction, initial_alt, step_time):
     t = step * step_time
@@ -155,11 +139,6 @@ def heart_shape_trajectory(step, maneuver_time, diameter, direction, initial_alt
 
     return x, y, z, vx, vy, vz, ax, ay, az
 
-
-
-
-
-
 def helix_trajectory(step, maneuver_time, diameter, direction, initial_alt, step_time, end_altitude, turns):
     t = step * step_time
     theta = 2 * direction * math.pi * t / maneuver_time * turns
@@ -178,9 +157,6 @@ def helix_trajectory(step, maneuver_time, diameter, direction, initial_alt, step
 
     return x, y, z, vx, vy, vz, ax, ay, az
 
-
-
-
 def eight_shape_trajectory(step, maneuver_time, diameter, direction,initial_alt, step_time):
     t = step * step_time
     theta = 2 * direction * math.pi * t / maneuver_time
@@ -198,7 +174,6 @@ def eight_shape_trajectory(step, maneuver_time, diameter, direction,initial_alt,
     az = 0
 
     return x, y, z, vx, vy, vz, ax, ay, az
-
 
 def circle_trajectory(step, maneuver_time, diameter, direction, initial_alt, step_time):
     t = step * step_time

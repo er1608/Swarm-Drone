@@ -1,86 +1,3 @@
-
-""""
-Function: create_active_csv()
-
-Description:
--------------
-The create_active_csv() function in csvCreator.py is responsible for generating the CSV file that represents the drone's trajectory. This function accepts several input parameters to customize the trajectory generation process.
-
-Usage:
-------
-To use the create_active_csv() function, call it with the desired input parameters to generate the CSV file for the drone's trajectory.
-
-Args:
------
-- shape_name (str): Name of the shape to be flown by the drone. Available options:
-    - "circle": Drone will fly in a circular path.
-    - "square": Drone will fly in a square path.
-    - "triangle": Drone will fly in a triangular path.
-    - "custom": Drone will follow a user-defined path.
-- diameter (float): Diameter of the shape in meters. Applicable to "circle" shape only.
-- direction (int): Direction of the shape's traversal. Use 1 for clockwise (CW) and -1 for counterclockwise (CCW). Applicable to "circle" and "square" shapes.
-- maneuver_time (float): Total time to complete one traversal of the shape in seconds.
-- start_x (float): X-coordinate of the starting position.
-- start_y (float): Y-coordinate of the starting position.
-- initial_altitude (float): Initial altitude of the drone in meters.
-- climb_rate (float): Rate of climb or descent in meters per second.
-- move_speed (float): Speed of movement along the shape in meters per second.
-- hold_time (float): Time to hold at each vertex of the shape in seconds.
-
-Outputs:
---------
-The create_active_csv() function generates a CSV file that represents the drone's trajectory. The CSV file contains the following columns:
-- `idx`: Index or step number of the trajectory.
-- `t`: Time in seconds for the given step.
-- `px`: Drone's position in the X-axis.
-- `py`: Drone's position in the Y-axis.
-- `pz`: Drone's position in the Z-axis (negative value indicates altitude).
-- `vx`: Drone's velocity in the X-axis.
-- `vy`: Drone's velocity in the Y-axis.
-- `vz`: Drone's velocity in the Z-axis.
-- `ax`: Drone's acceleration in the X-axis.
-- `ay`: Drone's acceleration in the Y-axis.
-- `az`: Drone's acceleration in the Z-axis.
-- `yaw`: Drone's yaw angle.\
-- 'mode' : Flight Phase Mode
-- `ledr`: Red component value for the drone's LED color.
-- `ledg`: Green component value for the drone's LED color.
-- `ledb`: Blue component value for the drone's LED color.
-
-
-Flight Modes and Codes:
-- 0: On the ground
-- 10: Initial climbing state
-- 20: Initial holding after climb
-- 30: Moving to start point
-- 40: Holding at start point
-- 50: Moving to maneuvering start point
-- 60: Holding at maneuver start point
-- 70: Maneuvering (trajectory)
-- 80: Holding at the end of the trajectory coordinate
-- 90: Returning to home coordinate
-- 100: Landing
-
-Each flight mode is represented by an integer code. These codes are used to indicate the different phases of the flight in the CSV file.
-
-Example Usage:
---------------
-To generate a CSV file for a circular trajectory, use the following code snippet:
-
-create_active_csv(shape_name="circle", diameter=5.0, direction=1, maneuver_time=60.0, start_x=0.0, start_y=0.0, initial_altitude=10.0, climb_rate=2.0, move_speed=2.5, hold_time=2.0)
-
-Visualization:
---------------
-After generating the CSV file, you can visualize the trajectory using plot functions and save the trajectory plot in the "shaped" folder along with the CSV file.
-
-Note:
------
-Make sure to have the necessary dependencies installed and correctly set up the offboard control system to use the generated CSV file for controlling the drone in an offboard mode.
-"""
-
-
-
-
 import csv
 import math
 import matplotlib.pyplot as plt
@@ -89,16 +6,8 @@ import numpy as np
 import pandas as pd
 from functions.trajectories import *
 
-
-
-
-
-
 def create_active_csv(shape_name,diameter, direction, maneuver_time, start_x, start_y, initial_altitude, climb_rate,move_speed, hold_time , step_time, output_file="active.csv"):
 
-   
-   
-    # Define an if-elif block to map shape names to enumeration or number codes
     if shape_name == "eight_shape":
         shape_code = 0
         shape_fcn = eight_shape_trajectory

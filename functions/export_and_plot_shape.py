@@ -4,14 +4,6 @@ import pandas as pd
 import numpy as np
 
 def export_and_plot_shape(output_file):
-    """
-    Load the trajectory data from a CSV file, plot the trajectory, and save the plot.
-
-    Parameters
-    ----------
-    output_file : str
-        The path to the CSV file containing the trajectory data.
-    """
     # Load the data from the active.csv file
     data = pd.read_csv(output_file)
 
