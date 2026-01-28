@@ -1,10 +1,3 @@
-"""
-    
-    The initial position of each drone is determined by the spawn_model function in the script. The X and Y coordinates are set as follows:
-X coordinate: X=${X:=0.0}
-Y coordinate: Y=${Y:=$((3*${N}))}
-Here, N is the instance number of the drone. The X coordinate is set to 0.0, and the Y coordinate is set to 3 times the instance number. This means that the drones are spawned in a straight line along the Y-axis, with a distance of 3 units between each drone.
-"""
 import os
 import asyncio
 from mavsdk import System

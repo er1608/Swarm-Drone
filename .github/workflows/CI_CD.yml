@@ -1,30 +1,135 @@
-name: Python Package (pip)
+name: Swarm SITL Tests
 
-on: [push]
+on:
+  push:
+    branches:
+      - "main"
+  pull_request:
+    branches:
+      - "**"
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
-  build-linux:
-    runs-on: ubuntu-latest
+  build:
+    name: Testing PX4 ${{ matrix.config.model }}
+    runs-on:
+      [
+        runs-on,
+        runner=4cpu-linux-x64,
+        image=ubuntu22-full-x64,
+        "run-id=${{ github.run_id }}",
+        spot=false,
+      ]
+    container:
+      image: px4io/px4-dev-simulation-focal:2021-09-08
+      options: --privileged --ulimit core=-1 --security-opt seccomp=unconfined
+    strategy:
+      fail-fast: false
+      matrix:
+        config:
+          - {
+              model: "iris",
+              latitude: "59.617693",
+              longitude: "-151.145316",
+              altitude: "48",
+              build_type: "RelWithDebInfo",
+            }
 
     steps:
-    - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
-    - name: Set up Python 3.10
-      uses: actions/setup-python@v5
-      with:
-        python-version: '3.10'
+      - name: Git Ownership Workaround
+        run: git config --system --add safe.directory '*'
 
-    - name: Install dependencies
-      run: |
-        pip install mavsdk
-        pip install flake8 pytest
+      - id: set-timestamp
+        name: Set timestamp for cache
+        run: echo "::set-output name=timestamp::$(date +"%Y%m%d%H%M%S")"
 
-    - name: Lint with flake8
-      run: |
-        flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
-        flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+      - name: Cache Key Config
+        uses: actions/cache@v4
+        with:
+          path: ~/.ccache
+          key: sitl-ccache-${{ steps.set-timestamp.outputs.timestamp }}
+          restore-keys: sitl-ccache-${{ steps.set-timestamp.outputs.timestamp }}
 
-    - name: Test with pytest
-      run: |
-        pytest
+      - name: Cache Conf Config
+        run: |
+          mkdir -p ~/.ccache
+          echo "base_dir = ${GITHUB_WORKSPACE}" > ~/.ccache/ccache.conf
+          echo "compression = true" >> ~/.ccache/ccache.conf
+          echo "compression_level = 6" >> ~/.ccache/ccache.conf
+          echo "max_size = 120M" >> ~/.ccache/ccache.conf
+          echo "hash_dir = false" >> ~/.ccache/ccache.conf
+          ccache -s
+          ccache -z
 
+      - name: Build PX4
+        env:
+          PX4_CMAKE_BUILD_TYPE: ${{matrix.config.build_type}}
+        run: make px4_sitl_default
+
+      - name: Cache Post-Run [px4_sitl_default]
+        run: ccache -s
+
+      - name: Build SITL Gazebo
+        env:
+          PX4_CMAKE_BUILD_TYPE: ${{matrix.config.build_type}}
+        run: make px4_sitl_default sitl_gazebo-classic
+
+      - name: Cache Post-Run [sitl_gazebo-classic]
+        run: ccache -s
+
+      - name: Download MAVSDK
+        run: wget "https://github.com/mavlink/MAVSDK/releases/download/v$(cat test/mavsdk_tests/MAVSDK_VERSION)/libmavsdk-dev_$(cat test/mavsdk_tests/MAVSDK_VERSION)_ubuntu20.04_amd64.deb"
+
+      - name: Install MAVSDK
+        run: dpkg -i "libmavsdk-dev_$(cat test/mavsdk_tests/MAVSDK_VERSION)_ubuntu20.04_amd64.deb"
+
+      - name: Check PX4 Environment Variables
+        env:
+          PX4_HOME_LAT: ${{matrix.config.latitude}}
+          PX4_HOME_LON: ${{matrix.config.longitude}}
+          PX4_HOME_ALT: ${{matrix.config.altitude}}
+          PX4_CMAKE_BUILD_TYPE: ${{matrix.config.build_type}}
+        run: |
+          export
+          ulimit -a
+
+      - name: Build PX4 / MAVSDK tests
+        env:
+          PX4_CMAKE_BUILD_TYPE: ${{matrix.config.build_type}}
+          DONT_RUN: 1
+        run: make px4_sitl_default sitl_gazebo-classic mavsdk_tests
+
+      - name: Cache Post-Run [px4_sitl_default sitl_gazebo-classic mavsdk_tests]
+        run: ccache -s
+
+      - name: Core Dump Settings
+        run: |
+          ulimit -c unlimited
+          echo "`pwd`/%e.core" > /proc/sys/kernel/core_pattern
+
+      - name: Run SITL / MAVSDK Tests
+        env:
+          PX4_HOME_LAT: ${{matrix.config.latitude}}
+          PX4_HOME_LON: ${{matrix.config.longitude}}
+          PX4_HOME_ALT: ${{matrix.config.altitude}}
+          PX4_CMAKE_BUILD_TYPE: ${{matrix.config.build_type}}
+        run: python3 tests/run_offboard_test.py
+
+        timeout-minutes: 45
+
+      - name: Upload failed logs
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: failed-${{matrix.config.model}}-logs.zip
+          path: |
+            logs/**/**/**/*.log
+            logs/**/**/**/*.ulg
+            build/px4_sitl_default/tmp_mavsdk_tests/rootfs/log/**/*.ulg
