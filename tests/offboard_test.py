@@ -2,7 +2,7 @@ import os
 import asyncio
 import pytest
 from unittest.mock import AsyncMock
-from mavsdk import PositionNedYaw
+from mavsdk import Offboard, PositionNedYaw
 from mavsdk import System
 
 @pytest.mark.asyncio
